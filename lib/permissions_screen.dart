@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager/photo_manager.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PermissionsScreen extends StatefulWidget {
   const PermissionsScreen({super.key});
@@ -10,24 +10,52 @@ class PermissionsScreen extends StatefulWidget {
 }
 
 class _PermissionsScreenState extends State<PermissionsScreen> {
-  bool _hasPermission = false;
-
   @override
   void initState() {
     super.initState();
-    _checkPermissions();
+    // Using addPostFrameCallback to safely navigate after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkInitialPermission();
+    });
   }
 
-  Future<void> _checkPermissions() async {
-    final ps = await PhotoManager.requestPermissionExtend();
-    if (ps.isAuth) {
+  Future<void> _checkInitialPermission() async {
+    final status = await Permission.photos.status;
+    if (status.isGranted || status.isLimited) {
       if (mounted) {
-        setState(() => _hasPermission = true);
         context.go('/home');
       }
-    } else {
-      if (mounted) {
-        setState(() => _hasPermission = false);
+    }
+  }
+
+  Future<void> _requestPermission() async {
+    final status = await Permission.photos.request();
+
+    if (mounted) {
+      if (status.isGranted || status.isLimited) {
+        context.go('/home');
+      } else if (status.isPermanentlyDenied) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text(
+                'This app needs photo access to function. Please grant permission in app settings.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: const Text('Open Settings'),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
       }
     }
   }
@@ -61,15 +89,10 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 48),
-              _hasPermission
-                  ? ElevatedButton(
-                      onPressed: () => context.go('/home'),
-                      child: const Text('Continue to App'),
-                    )
-                  : ElevatedButton(
-                      onPressed: _checkPermissions, // Re-check permission on tap
-                      child: const Text('Grant Permission'),
-                    ),
+              ElevatedButton(
+                onPressed: _requestPermission,
+                child: const Text('Grant Permission'),
+              ),
             ],
           ),
         ),
