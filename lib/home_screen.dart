@@ -82,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 50),
                     _buildStorageInfoCard(),
                     const SizedBox(height: 50),
-                    _buildMainActions(context),
                   ],
                 ),
         ),
@@ -91,9 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStorageInfoCard() {
-    // Correct property names are .total and .free
-    final totalSpaceGB = (_storageSpace?.total ?? 0) / 1024;
-    final usedSpaceGB = totalSpaceGB - ((_storageSpace?.free ?? 0) / 1024);
+    // Values are in bytes, convert to GB
+    final totalSpaceGB = (_storageSpace?.total ?? 0) / (1024 * 1024 * 1024);
+    final freeSpaceGB = (_storageSpace?.free ?? 0) / (1024 * 1024 * 1024);
+    final usedSpaceGB = totalSpaceGB - freeSpaceGB;
     final usedPercentage = totalSpaceGB > 0 ? (usedSpaceGB / totalSpaceGB) : 0.0;
 
     // Assuming a monthly goal of 10GB freed
@@ -162,36 +162,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMainActions(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-         ElevatedButton.icon(
-          onPressed: () => context.go('/swipe'),
-          icon: const Icon(Icons.swipe_right_outlined),
-          label: const Text('Swipe & Clean'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            textStyle: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        OutlinedButton.icon(
-          onPressed: () => context.go('/albums'),
-          icon: const Icon(Icons.photo_album_outlined),
-          label: const Text('View Albums'),
-           style: OutlinedButton.styleFrom(
-             padding: const EdgeInsets.symmetric(vertical: 16),
-             textStyle: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600),
-             shape: RoundedRectangleBorder(
-               borderRadius: BorderRadius.circular(12),
-             ),
-           ),
-        ),
-      ],
-    );
-  }
 }
