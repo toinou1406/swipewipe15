@@ -1,55 +1,42 @@
-# Blueprint de l'Application de Tri de Photos v3
+# Photo Manager Pro Blueprint
 
-## Aperçu
+## Overview
 
-Une application mobile complète pour Android et iOS, conçue pour un tri de photos rapide, intuitif et efficace. L'application s'articule autour d'une barre de navigation inférieure et propose des outils de gestion d'albums, le tout dans une interface moderne avec des thèmes clair et sombre dynamiques.
+A Flutter application designed to provide a comprehensive and user-friendly experience for managing and browsing photos on a mobile device. The app is built with a focus on a clean, modern design, and intuitive navigation.
 
-## Architecture et Structure
+## Style, Design, and Features
 
-*   **State Management**: `provider` pour la gestion d'état et l'injection de dépendances, notamment pour le thème.
-*   **Navigation**: `go_router` pour une navigation déclarative et robuste entre les écrans.
-*   **Structure de Navigation**: Un `Scaffold` avec une `BottomNavigationBar` pour la navigation principale entre les écrans "Swipe" et "Albums".
-*   **Permissions**: `photo_manager` pour gérer l'accès à la galerie et `permission_handler` pour une gestion fine des permissions.
-*   **UI**: Des composants Material 3 modernes et une typographie soignée avec `google_fonts`.
-*   **Thèmes**: Gestion centralisée des thèmes clair/sombre via un `ThemeProvider` et `ChangeNotifier`.
+### General
+- **Theming:** A custom theme is implemented using `ThemeData` with a modern color palette based on a seed color (`#4A6572`).
+- **Typography:** The app uses custom fonts from `google_fonts` (`Poppins` for headlines and `Lato` for body text) to create a clear and readable text hierarchy.
+- **Navigation:** All navigation is handled by the `go_router` package, providing a declarative and robust routing solution.
 
-## Flux de l'Application et Écrans
+### Screens
+- **Permissions Screen:** The initial screen of the application. It checks for and requests permission to access the user's photo library.
+- **Home Screen:** The main hub of the application. It now features:
+    - Two progress bars showing the used storage space and the space freed this month.
+    - Two prominent buttons for navigating to the "Swipe & Clean" and "View Albums" screens.
+- **Swipe Screen:** A fun, tinder-like interface for swiping through photos. It uses the `flutter_card_swiper` package.
+- **Albums Screen:** Displays a grid of all photo albums on the device. Each album is presented as a card with a thumbnail, the album name, and the number of photos.
+- **Album Photos Screen:** Shows a grid of all photos within a selected album.
+- **Photo Viewer Screen:** A full-screen photo viewer that allows users to zoom in and out of photos and swipe between them. It leverages the `photo_view` package.
 
-1.  **Écran de Permissions (`PermissionScreen`)**:
-    *   Premier écran lancé.
-    *   Vérifie et demande les autorisations nécessaires (accès aux photos, notifications).
-    *   Affiche des explications claires sur la nécessité des permissions.
-    *   Une fois les autorisations accordées, redirige vers l'écran principal.
+### Packages Used
+- `go_router`: For navigation.
+- `google_fonts`: For custom typography.
+- `photo_manager`: To access and manage photos from the device gallery.
+- `photo_view`: For the full-screen photo viewer.
+- `flutter_card_swiper`: For the tinder-like swipe interface.
+- `permission_handler`: (Implicitly used by `photo_manager`) For handling permissions.
+- `storage_space`: To get device storage information.
+- `shared_preferences`: To persist simple data (like freed space).
 
-2.  **Structure de Navigation Principale (`MainShell`)**:
-    *   Contient le `Scaffold` principal avec l' `AppBar` et la `BottomNavigationBar`.
-    *   L'AppBar contient des boutons pour basculer entre les thèmes clair, sombre et système.
-    *   La `BottomNavigationBar` permet de naviguer entre `SwipeScreen` et `AlbumsScreen`.
+## Current Plan
 
-3.  **Écran d'Accueil (`HomeScreen`)**:
-    *   Actuellement utilisé comme une page de bienvenue simple, mais pourrait être fusionné ou rediriger directement vers la vue "Swipe". Pour l'instant, la route `/` redirige vers `/swipe`.
+The initial request was to continue the development of the application. I have completed the following steps:
 
-4.  **Écran de Tri (`SwipeScreen`)**:
-    *   L'écran principal pour le tri des photos.
-    *   Affiche les photos de la galerie sous forme de cartes empilées.
-    *   L'utilisateur peut balayer à droite pour "aimer" (garder) ou à gauche pour "supprimer".
-    *   Utilisera le package `flutter_card_swiper` pour l'animation de balayage.
-
-5.  **Gestion des Albums**:
-    *   **Vue Principale des Albums (`AlbumsScreen`)**:
-        *   Affiche la liste de tous les albums photo existants sur l'appareil.
-        *   Affiche une miniature, le nom de l'album et le nombre de photos.
-        *   **Action au clic**: Naviguer vers l'écran `AlbumPhotosScreen` correspondant.
-    *   **Vue Mosaïque de l'Album (`AlbumPhotosScreen`)**:
-        *   Affiche les photos de l'album sélectionné en grille.
-        *   Permet la visualisation en plein écran au clic sur une photo.
-
-## Plan de Développement Actuel
-
-- **Terminé** : Mise en place de la structure de base avec `go_router` et `provider`.
-- **Terminé** : Création d'un écran de permissions robuste.
-- **Terminé** : Implémentation d'un système de thème dynamique (clair/sombre/système).
-- **Terminé** : Correction de la navigation et de la `BottomNavigationBar`.
-- **En cours** : Remplacer la logique de création d'albums spécifique à Darwin par une approche multiplateforme.
-- **À faire** : Implémenter la fonctionnalité de tri sur l'écran `SwipeScreen` avec `flutter_card_swiper`.
-- **À faire** : Affiner l'interface utilisateur pour une expérience "commercialisable".
+1.  **Code Review:** I conducted a thorough review of the entire codebase to understand its structure, features, and dependencies.
+2.  **Navigation Correction:** I identified and fixed inconsistencies in the navigation implementation. The app now exclusively uses `go_router` for all screen transitions.
+3.  **Dependency Verification:** I confirmed that all necessary dependencies are listed in the `pubspec.yaml` file.
+4.  **Home Screen Redesign:** I have completely redesigned the Home Screen to be more informative and user-friendly, adding storage progress bars and clear navigation buttons.
+5.  **Blueprint Update:** I have updated this `blueprint.md` file to reflect the new home screen design and added dependencies.

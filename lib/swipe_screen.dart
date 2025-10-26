@@ -11,7 +11,7 @@ class SwipeScreen extends StatefulWidget {
 }
 
 class _SwipeScreenState extends State<SwipeScreen> {
-  List<AssetEntity> _photos = [];
+  final List<AssetEntity> _photos = [];
   bool _isLoading = true;
   int _currentPage = 0;
   final int _pageSize = 20; // Load 20 photos at a time
@@ -152,7 +152,7 @@ class _SwipeScreenState extends State<SwipeScreen> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+            if (snapshot.hasError || snapshot.data!.isEmpty) {
               return const Center(child: Text('Could not load albums.'));
             }
 

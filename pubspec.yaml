@@ -43,6 +43,7 @@ dependencies:
   flutter_card_swiper: ^7.1.0
   shared_preferences: ^2.5.3
   hooks_riverpod: ^3.0.3
+  photo_view: ^0.15.0
 
 dev_dependencies:
   flutter_test:

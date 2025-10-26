@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 class PermissionsScreen extends StatefulWidget {
   const PermissionsScreen({super.key});
@@ -10,20 +10,24 @@ class PermissionsScreen extends StatefulWidget {
 }
 
 class _PermissionsScreenState extends State<PermissionsScreen> {
-  Future<void> _requestPermission() async {
-    final status = await Permission.photos.request();
-    if (status.isGranted) {
+  bool _hasPermission = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermissions();
+  }
+
+  Future<void> _checkPermissions() async {
+    final ps = await PhotoManager.requestPermissionExtend();
+    if (ps.isAuth) {
       if (mounted) {
+        setState(() => _hasPermission = true);
         context.go('/home');
       }
     } else {
-      // Optionally, show a dialog to explain why the permission is needed
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Photo library access is required to use this app.'),
-          ),
-        );
+        setState(() => _hasPermission = false);
       }
     }
   }
@@ -36,25 +40,36 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.photo_library_outlined, size: 80),
-              const SizedBox(height: 24),
-              Text(
-                'Access Your Photos',
-                style: Theme.of(context).textTheme.headlineSmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'This app needs access to your photo library to help you sort, manage, and delete your photos.',
-                style: TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
+            children: <Widget>[
+              Icon(
+                Icons.photo_library_outlined,
+                size: 120,
+                color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _requestPermission,
-                child: const Text('Grant Access'),
+              Text(
+                'Welcome to Photo Manager Pro',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary
+                ),
               ),
+              const SizedBox(height: 16),
+              Text(
+                'To get started, please grant permission to access your photo library.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(height: 48),
+              _hasPermission
+                  ? ElevatedButton(
+                      onPressed: () => context.go('/home'),
+                      child: const Text('Continue to App'),
+                    )
+                  : ElevatedButton(
+                      onPressed: _checkPermissions, // Re-check permission on tap
+                      child: const Text('Grant Permission'),
+                    ),
             ],
           ),
         ),

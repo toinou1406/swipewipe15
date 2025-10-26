@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:typed_data';
-
-import 'album_photos_screen.dart';
 
 class AlbumsScreen extends StatefulWidget {
   const AlbumsScreen({super.key});
@@ -22,10 +21,8 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
   }
 
   Future<void> _fetchAlbums() async {
-    final FilterOptionGroup filterOption = FilterOptionGroup()
-      ..addOrderOption(const OrderOption(type: OrderOptionType.updateDate, asc: false));
-
-    final albums = await PhotoManager.getAssetPathList(type: RequestType.image, filterOption: filterOption);
+    // No need to request permission here, it's handled by PermissionsScreen
+    final albums = await PhotoManager.getAssetPathList(type: RequestType.image);
     if (mounted) {
       setState(() {
         _albums = albums;
@@ -42,48 +39,82 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
           : _albums.isEmpty
               ? const Center(child: Text('No albums found.'))
               : GridView.builder(
+                  padding: const EdgeInsets.all(8.0),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
                   ),
                   itemCount: _albums.length,
                   itemBuilder: (context, index) {
                     final album = _albums[index];
-                    return FutureBuilder<Uint8List?>(
-                      future: album.getAssetListRange(start: 0, end: 1).then((assets) async {
-                        if (assets.isEmpty) return null;
-                        return assets.first.thumbnailDataWithSize(const ThumbnailSize(200, 200));
-                      }),
-                      builder: (context, snapshot) {
-                        Widget albumCover = const Icon(Icons.photo_album_outlined, size: 80, color: Colors.grey,);
-                        if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
-                          albumCover = Image.memory(snapshot.data!, fit: BoxFit.cover,);
-                        }
-
-                        return GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AlbumPhotosScreen(album: album),
-                            ),
-                          ),
-                          child: GridTile(
-                            footer: GridTileBar(
-                              backgroundColor: Colors.black45,
-                              title: Text(album.name, overflow: TextOverflow.ellipsis,),
-                              subtitle: FutureBuilder<int>(
-                                future: album.assetCountAsync,
-                                builder: (context, countSnapshot) => Text('${countSnapshot.data ?? 0} photos'),
-                              ),
-                            ),
-                            child: albumCover,
-                          ),
-                        );
-                      },
-                    );
+                    return _buildAlbumCard(album);
                   },
                 ),
+    );
+  }
+
+  Widget _buildAlbumCard(AssetPathEntity album) {
+    return InkWell(
+      onTap: () => context.go('/album_photos', extra: album),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            FutureBuilder<Uint8List?>(
+              future: album.getAssetListRange(start: 0, end: 1).then((assets) async {
+                if (assets.isEmpty) return null;
+                return assets.first.thumbnailDataWithSize(const ThumbnailSize(400, 400));
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
+                  return Image.memory(
+                    snapshot.data!,
+                    fit: BoxFit.cover,
+                  );
+                }
+                return Container(color: Colors.grey[300], child: const Icon(Icons.photo_album_outlined, size: 60, color: Colors.grey,),);
+              },
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.black, Colors.transparent],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      album.name,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    FutureBuilder<int>(
+                      future: album.assetCountAsync,
+                      builder: (context, countSnapshot) => Text(
+                        '${countSnapshot.data ?? 0} photos',
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
