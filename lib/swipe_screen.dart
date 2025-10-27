@@ -79,7 +79,7 @@ class _SwipeScreenState extends State<SwipeScreen> {
                                   return const Center(child: CircularProgressIndicator());
                                 }
                               },
-                            );
+                            ));
                           },
                         ),
                       ),
