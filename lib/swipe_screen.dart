@@ -51,31 +51,33 @@ class _SwipeScreenState extends State<SwipeScreen> {
               : Column(
                   children: [
                     Flexible(
-                      child: CardSwiper(
-                        controller: _swiperController,
-                        cardsCount: _photos.length,
-                        onSwipe: _onSwipe,
-                        padding: const EdgeInsets.all(24.0),
-                        numberOfCardsDisplayed: 2,
-                        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true, vertical: true),
-                        backCardOffset: const Offset(10, 20),
-                        cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-                          final photo = _photos[index];
-                          return Card(
-                            clipBehavior: Clip.antiAlias,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            child: FutureBuilder<Uint8List?>(
-                              future: photo.thumbnailDataWithSize(const ThumbnailSize(800, 800)),
+                      child: Container(
+                        color: Colors.black,
+                        child: CardSwiper(
+                          controller: _swiperController,
+                          cardsCount: _photos.length,
+                          onSwipe: _onSwipe,
+                          padding: EdgeInsets.zero, // Remove padding
+                          numberOfCardsDisplayed: 2,
+                          allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true, vertical: true),
+                          backCardOffset: const Offset(10, 20),
+                          cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
+                            final photo = _photos[index];
+                            return FutureBuilder<Uint8List?>(
+                              future: photo.originBytes, // Use original image for better quality
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
-                                  return Image.memory(snapshot.data!, fit: BoxFit.cover);
+                                  return Image.memory(
+                                    snapshot.data!,
+                                    fit: BoxFit.contain, // Fit the whole image
+                                  );
                                 } else {
                                   return const Center(child: CircularProgressIndicator());
                                 }
                               },
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
                     Padding(

@@ -91,10 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStorageInfoCard() {
-    // Values are in bytes, convert to GB
-    final totalSpaceGB = (_storageSpace?.total ?? 0) / (1024 * 1024 * 1024);
-    final freeSpaceGB = (_storageSpace?.free ?? 0) / (1024 * 1024 * 1024);
-    final usedSpaceGB = totalSpaceGB - freeSpaceGB;
+    // Correct property names are .total and .free
+    final totalSpaceGB = (_storageSpace?.total ?? 0) / 1024;
+    final usedSpaceGB = totalSpaceGB - ((_storageSpace?.free ?? 0) / 1024);
     final usedPercentage = totalSpaceGB > 0 ? (usedSpaceGB / totalSpaceGB) : 0.0;
 
     // Assuming a monthly goal of 10GB freed
