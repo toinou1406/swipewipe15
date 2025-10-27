@@ -57,13 +57,17 @@ class _SwipeScreenState extends State<SwipeScreen> {
                           controller: _swiperController,
                           cardsCount: _photos.length,
                           onSwipe: _onSwipe,
-                          padding: EdgeInsets.zero, // Remove padding
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
                           numberOfCardsDisplayed: 2,
+                          isLoop: false, // Don't loop through the deck
+                          scale: 0.95, // Scale down the back card slightly
+                          backCardOffset: const Offset(0, 15), // Adjust the back card's position
                           allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true, vertical: true),
-                          backCardOffset: const Offset(10, 20),
                           cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
                             final photo = _photos[index];
-                            return FutureBuilder<Uint8List?>(
+                            return ClipRRect( // Add rounded corners to the image itself
+                              borderRadius: BorderRadius.circular(16.0),
+                              child: FutureBuilder<Uint8List?>(
                               future: photo.originBytes, // Use original image for better quality
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
@@ -92,27 +96,59 @@ class _SwipeScreenState extends State<SwipeScreen> {
   Widget _buildSwipeButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        IconButton(
-          icon: const Icon(Icons.close, color: Colors.red, size: 40),
+        _buildActionButton(
+          icon: Icons.close,
+          color: Colors.red,
           onPressed: () => _swiperController.swipe(CardSwiperDirection.left),
-          tooltip: 'Discard',
         ),
-        IconButton(
-            icon: const Icon(Icons.undo, size: 30),
-            onPressed: () => _swiperController.undo(),
-            tooltip: 'Undo'),
-        IconButton(
-          icon: const Icon(Icons.photo_album_outlined, size: 30),
+        _buildActionButton(
+          icon: Icons.undo,
+          color: Colors.amber,
+          size: 24, // Smaller icon for a secondary action
+          onPressed: () => _swiperController.undo(),
+        ),
+        _buildActionButton(
+          icon: Icons.photo_album_outlined,
+          color: Colors.blue,
+          size: 24,
           onPressed: () => _swiperController.swipe(CardSwiperDirection.bottom),
-          tooltip: 'Add to Album',
         ),
-        IconButton(
-          icon: const Icon(Icons.favorite, color: Colors.green, size: 40),
+        _buildActionButton(
+          icon: Icons.favorite,
+          color: Colors.green,
           onPressed: () => _swiperController.swipe(CardSwiperDirection.right),
-          tooltip: 'Keep',
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+    double size = 32,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: color, size: size),
+        onPressed: onPressed,
+        iconSize: size,
+        splashRadius: size * 0.7,
+      ),
     );
   }
 
