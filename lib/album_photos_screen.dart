@@ -1,7 +1,7 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'dart:typed_data';
 
 class AlbumPhotosScreen extends StatefulWidget {
   final AssetPathEntity album;

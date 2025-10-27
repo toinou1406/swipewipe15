@@ -79,7 +79,7 @@ class _SwipeScreenState extends State<SwipeScreen> {
                                   return const Center(child: CircularProgressIndicator());
                                 }
                               },
-                            ));
+                            );
                           },
                         ),
                       ),
@@ -154,7 +154,6 @@ class _SwipeScreenState extends State<SwipeScreen> {
 
   bool _onSwipe(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
     HapticFeedback.lightImpact();
-    debugPrint('Swiped $direction on photo $previousIndex');
 
     final photo = _photos[previousIndex];
 
@@ -174,9 +173,8 @@ class _SwipeScreenState extends State<SwipeScreen> {
   Future<void> _deletePhoto(AssetEntity photo) async {
     try {
       await PhotoManager.editor.deleteWithIds([photo.id]);
-      debugPrint('Photo ${photo.id} deleted');
     } catch (e) {
-      debugPrint('Failed to delete photo: $e');
+      // Failed to delete photo
     }
   }
 
@@ -223,9 +221,8 @@ class _SwipeScreenState extends State<SwipeScreen> {
                     Navigator.of(builderContext).pop();
                     try {
                       await PhotoManager.editor.copyAssetToPath(asset: photo, pathEntity: album);
-                      debugPrint('Photo ${photo.id} added to album ${album.name}');
                     } catch (e) {
-                      debugPrint('Failed to add photo: $e');
+                      // Failed to add photo
                     }
                   },
                 );

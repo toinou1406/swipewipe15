@@ -37,7 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       // Handle potential errors, e.g., platform not supported
-      debugPrint('Error getting storage space: $e');
     } finally {
        if (mounted) {
         setState(() {
