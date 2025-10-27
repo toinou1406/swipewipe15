@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storage_space/storage_space.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'widgets/navigation_arrows.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -59,33 +60,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface, // Deprecation fix
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Photo Manager Pro',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        textStyle: Theme.of(context).textTheme.headlineLarge,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface, // Deprecation fix
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Photo Manager Pro',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            textStyle: Theme.of(context).textTheme.headlineLarge,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 50),
+                        _buildStorageInfoCard(),
+                        const SizedBox(height: 50),
+                        _buildMainActions(context),
+                      ],
                     ),
-                    const SizedBox(height: 50),
-                    _buildStorageInfoCard(),
-                    const SizedBox(height: 50),
-                    _buildMainActions(context),
-                  ],
-                ),
+            ),
+          ),
         ),
-      ),
+        const NavigationArrows(currentScreen: 'home'),
+      ],
     );
   }
 

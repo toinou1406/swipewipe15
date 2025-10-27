@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'widgets/navigation_arrows.dart';
 
 class SwipeScreen extends StatefulWidget {
   const SwipeScreen({super.key});
@@ -43,51 +44,56 @@ class _SwipeScreenState extends State<SwipeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _photos.isEmpty
-              ? const Center(child: Text('No photos to swipe.'))
-              : Column(
-                  children: [
-                    Flexible(
-                      child: CardSwiper(
-                        controller: _swiperController,
-                        cardsCount: _photos.length,
-                        onSwipe: _onSwipe,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-                        numberOfCardsDisplayed: 2,
-                          isLoop: false, // Don't loop through the deck
-                          scale: 0.95, // Scale down the back card slightly
-                          backCardOffset: const Offset(0, 15), // Adjust the back card's position
-                        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true, vertical: true),
-                        cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-                          final photo = _photos[index];
-                            return ClipRRect( // Add rounded corners to the image itself
-                              borderRadius: BorderRadius.circular(16.0),
-                            child: FutureBuilder<Uint8List?>(
-                                future: photo.originBytes, // Use original image for better quality
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData && snapshot.data != null) {
-                                    return Image.memory(
-                                      snapshot.data!,
-                                      fit: BoxFit.contain, // Fit the whole image
-                                    );
-                                } else {
-                                  return const Center(child: CircularProgressIndicator());
-                                }
-                              },
-                            ),
-                          );
-                        },
-                      ),
+    return Stack(
+      children: [
+        Scaffold(
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _photos.isEmpty
+                  ? const Center(child: Text('No photos to swipe.'))
+                  : Column(
+                      children: [
+                        Flexible(
+                          child: CardSwiper(
+                            controller: _swiperController,
+                            cardsCount: _photos.length,
+                            onSwipe: _onSwipe,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                            numberOfCardsDisplayed: 2,
+                              isLoop: false, // Don't loop through the deck
+                              scale: 0.95, // Scale down the back card slightly
+                              backCardOffset: const Offset(0, 15), // Adjust the back card's position
+                            allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true, vertical: true),
+                            cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
+                              final photo = _photos[index];
+                                return ClipRRect( // Add rounded corners to the image itself
+                                  borderRadius: BorderRadius.circular(16.0),
+                                child: FutureBuilder<Uint8List?>(
+                                    future: photo.originBytes, // Use original image for better quality
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData && snapshot.data != null) {
+                                        return Image.memory(
+                                          snapshot.data!,
+                                          fit: BoxFit.contain, // Fit the whole image
+                                        );
+                                    } else {
+                                      return const Center(child: CircularProgressIndicator());
+                                    }
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: _buildSwipeButtons(),
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: _buildSwipeButtons(),
-                    ),
-                  ],
-                ),
+        ),
+        const NavigationArrows(currentScreen: 'swipe'),
+      ],
     );
   }
 
