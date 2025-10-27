@@ -51,37 +51,35 @@ class _SwipeScreenState extends State<SwipeScreen> {
               : Column(
                   children: [
                     Flexible(
-                      child: Container(
-                        color: Colors.black,
-                        child: CardSwiper(
-                          controller: _swiperController,
-                          cardsCount: _photos.length,
-                          onSwipe: _onSwipe,
+                      child: CardSwiper(
+                        controller: _swiperController,
+                        cardsCount: _photos.length,
+                        onSwipe: _onSwipe,
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-                          numberOfCardsDisplayed: 2,
+                        numberOfCardsDisplayed: 2,
                           isLoop: false, // Don't loop through the deck
                           scale: 0.95, // Scale down the back card slightly
                           backCardOffset: const Offset(0, 15), // Adjust the back card's position
-                          allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true, vertical: true),
-                          cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-                            final photo = _photos[index];
+                        allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true, vertical: true),
+                        cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
+                          final photo = _photos[index];
                             return ClipRRect( // Add rounded corners to the image itself
                               borderRadius: BorderRadius.circular(16.0),
-                              child: FutureBuilder<Uint8List?>(
-                              future: photo.originBytes, // Use original image for better quality
+                            child: FutureBuilder<Uint8List?>(
+                                future: photo.originBytes, // Use original image for better quality
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
-                                  return Image.memory(
-                                    snapshot.data!,
-                                    fit: BoxFit.contain, // Fit the whole image
-                                  );
+                                    return Image.memory(
+                                      snapshot.data!,
+                                      fit: BoxFit.contain, // Fit the whole image
+                                    );
                                 } else {
                                   return const Center(child: CircularProgressIndicator());
                                 }
                               },
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     Padding(
@@ -154,6 +152,7 @@ class _SwipeScreenState extends State<SwipeScreen> {
 
   bool _onSwipe(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
     HapticFeedback.lightImpact();
+    debugPrint('Swiped $direction on photo $previousIndex');
 
     final photo = _photos[previousIndex];
 
@@ -173,8 +172,9 @@ class _SwipeScreenState extends State<SwipeScreen> {
   Future<void> _deletePhoto(AssetEntity photo) async {
     try {
       await PhotoManager.editor.deleteWithIds([photo.id]);
+      debugPrint('Photo ${photo.id} deleted');
     } catch (e) {
-      // Failed to delete photo
+      debugPrint('Failed to delete photo: $e');
     }
   }
 
@@ -221,8 +221,9 @@ class _SwipeScreenState extends State<SwipeScreen> {
                     Navigator.of(builderContext).pop();
                     try {
                       await PhotoManager.editor.copyAssetToPath(asset: photo, pathEntity: album);
+                      debugPrint('Photo ${photo.id} added to album ${album.name}');
                     } catch (e) {
-                      // Failed to add photo
+                      debugPrint('Failed to add photo: $e');
                     }
                   },
                 );
